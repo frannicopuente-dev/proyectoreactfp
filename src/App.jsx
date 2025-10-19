@@ -1,15 +1,15 @@
 import React, { useState, useEffect } from 'react';
+import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
+import Home from './pages/Home.jsx';
+import Cart from './pages/Cart.jsx';
 import Layout from './components/Layout.jsx';
-import DestinationsList from './components/DestinationsList.jsx';
-import SelectedDestinations from './components/SelectedDestinations.jsx';
 
 const App = () => {
-  const [destinations, setDestinations] = useState([]); // lista completa de destinos
-  const [selectedIds, setSelectedIds] = useState([]);   // IDs como strings
+  const [destinations, setDestinations] = useState([]);
+  const [selectedIds, setSelectedIds] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // Cargar destinos desde la API
   useEffect(() => {
     fetch('https://68f5187cb16eb6f468365add.mockapi.io/DestinationsList/destinations')
       .then(res => {
@@ -17,9 +17,7 @@ const App = () => {
         return res.json();
       })
       .then(data => {
-        // Normalizamos todos los IDs como strings
-        const normalizedData = data.map(d => ({ ...d, id: d.id.toString() }));
-        setDestinations(normalizedData);
+        setDestinations(data.map(d => ({ ...d, id: d.id.toString() })));
         setLoading(false);
       })
       .catch(err => {
@@ -28,14 +26,9 @@ const App = () => {
       });
   }, []);
 
-  // Agregar destino por ID
-  const handleAddDestination = (id) => {
-    setSelectedIds([...selectedIds, id.toString()]);
-  };
-
-  // Eliminar una instancia de un destino por ID
+  const handleAddDestination = (id) => setSelectedIds([...selectedIds, id]);
   const handleRemoveDestination = (id) => {
-    const index = selectedIds.indexOf(id.toString());
+    const index = selectedIds.indexOf(id);
     if (index !== -1) {
       const newSelected = [...selectedIds];
       newSelected.splice(index, 1);
@@ -47,19 +40,39 @@ const App = () => {
   if (error) return <div className="alert alert-danger">Error: {error}</div>;
 
   return (
-    <Layout>
-      <h1 className="mb-4">Explorá el mundo con Theo Tour 🌍</h1>
-      <DestinationsList
-        destinations={destinations}
-        onAdd={handleAddDestination}
-        selectedIds={selectedIds}
-      />
-      <SelectedDestinations
-        destinations={destinations}
-        selectedIds={selectedIds}
-        onRemove={handleRemoveDestination}
-      />
-    </Layout>
+    <Router>
+      <Layout>
+        {/* Navegación */}
+        <nav className="mb-4">
+          <Link to="/" className="me-3">Home</Link>
+          <Link to="/cart">Carrito ({selectedIds.length})</Link>
+        </nav>
+
+        {/* Rutas */}
+        <Routes>
+          <Route
+            path="/"
+            element={
+              <Home
+                destinations={destinations}
+                onAdd={handleAddDestination}
+                selectedIds={selectedIds}
+              />
+            }
+          />
+          <Route
+            path="/cart"
+            element={
+              <Cart
+                destinations={destinations}
+                selectedIds={selectedIds}
+                onRemove={handleRemoveDestination}
+              />
+            }
+          />
+        </Routes>
+      </Layout>
+    </Router>
   );
 };
 

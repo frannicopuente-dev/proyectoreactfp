@@ -1,73 +1,46 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 
-const DestinationsList = ({ onAdd, selected }) => {
-  const [destinations, setDestinations] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-
-  useEffect(() => {
-    fetch('https://68f5187cb16eb6f468365add.mockapi.io/DestinationsList/destinations')
-      .then((res) => {
-        if (!res.ok) throw new Error('Error al cargar destinos');
-        return res.json();
-      })
-      .then((data) => {
-        setDestinations(data);
-        setLoading(false);
-      })
-      .catch((error) => {
-        setError(error.message);
-        setLoading(false);
-      });
-  }, []);
-
-  if (loading) return <div className="alert alert-info">Cargando destinos...</div>;
-  if (error) return <div className="alert alert-danger">Error: {error}</div>;
-
+const DestinationsList = ({ destinations, onAdd, selectedIds }) => {
   return (
     <div>
       <h2 className="mb-3">Destinos Disponibles</h2>
       <div className="row">
-        {destinations.map((destination) => {
-          const isSelected = selected.some(item => item.id === destination.id);
+        {destinations.map(destination => {
+          // Contador de cuántas veces está seleccionado
+          const count = selectedIds.filter(id => id === destination.id).length;
 
           return (
             <div key={destination.id} className="col-md-4 mb-4">
-              <div 
-                className="card h-100 shadow-sm" 
-                style={{ position: 'relative', zIndex: 1 }}
-              >
+              <div className="card h-100 shadow-sm">
                 {destination.imageUrl ? (
                   <img
                     src={destination.imageUrl}
-                    className="card-img-top"
                     alt={destination.name}
-                    style={{ 
-                      height: '180px', 
-                      objectFit: 'cover',
-                      position: 'relative',
-                      zIndex: 0 
-                    }}
+                    className="card-img-top"
+                    style={{ height: '180px', objectFit: 'cover' }}
                   />
                 ) : (
                   <div
                     className="bg-secondary d-flex justify-content-center align-items-center text-white"
-                    style={{ height: '180px', position: 'relative', zIndex: 0 }}
+                    style={{ height: '180px' }}
                   >
                     Sin imagen
                   </div>
                 )}
-                <div className="card-body d-flex flex-column" style={{ position: 'relative', zIndex: 2 }}>
-                  <h5 className="card-title">
-                    {destination.name} - ${destination.price}
-                  </h5>
+                <div className="card-body d-flex flex-column">
+                  <h5 className="card-title">{destination.name} - ${destination.price}</h5>
                   <p className="card-text flex-grow-1">{destination.description}</p>
+
+                  {/* Contador en tiempo real */}
+                  {count > 0 && (
+                    <p className="text-muted mb-1">Seleccionado: {count} veces</p>
+                  )}
+
                   <button
-                    className={`btn ${isSelected ? 'btn-success' : 'btn-primary'}`}
-                    disabled={isSelected}
-                    onClick={() => onAdd(destination)}
+                    className="btn btn-primary"
+                    onClick={() => onAdd(destination.id)}
                   >
-                    {isSelected ? 'Agregado' : 'Agregar'}
+                    Agregar
                   </button>
                 </div>
               </div>

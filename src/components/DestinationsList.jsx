@@ -1,52 +1,55 @@
-import React from 'react';
+import React, { useMemo } from 'react';
+import { useCarrito } from '../contexts/CarritoContext';
+import ProductCard from './common/ProductCard';
 
-const DestinationsList = ({ destinations, onAdd, selectedIds }) => {
+/**
+ * Componente que muestra la lista de destinos disponibles
+ */
+const DestinationsList = ({ destinations = [] }) => {
+  const { items, agregarAlCarrito } = useCarrito();
+
+  // Calcular conteos de manera eficiente
+  const itemCounts = useMemo(() => {
+    return items.reduce((acc, id) => {
+      acc[id] = (acc[id] || 0) + 1;
+      return acc;
+    }, {});
+  }, [items]);
+
+  if (destinations.length === 0) {
+    return (
+      <div className="alert alert-info">
+        No hay destinos disponibles en este momento.
+      </div>
+    );
+  }
+
   return (
     <div>
-      <h2 className="mb-3">Destinos Disponibles</h2>
-      <div className="row">
-        {destinations.map(destination => {
-          // Contador de cuántas veces está seleccionado
-          const count = selectedIds.filter(id => id === destination.id).length;
-
-          return (
-            <div key={destination.id} className="col-md-4 mb-4">
-              <div className="card h-100 shadow-sm">
-                {destination.imageUrl ? (
-                  <img
-                    src={destination.imageUrl}
-                    alt={destination.name}
-                    className="card-img-top"
-                    style={{ height: '180px', objectFit: 'cover' }}
-                  />
-                ) : (
-                  <div
-                    className="bg-secondary d-flex justify-content-center align-items-center text-white"
-                    style={{ height: '180px' }}
-                  >
-                    Sin imagen
-                  </div>
-                )}
-                <div className="card-body d-flex flex-column">
-                  <h5 className="card-title">{destination.name} - ${destination.price}</h5>
-                  <p className="card-text flex-grow-1">{destination.description}</p>
-
-                  {/* Contador en tiempo real */}
-                  {count > 0 && (
-                    <p className="text-muted mb-1">Seleccionado: {count} veces</p>
-                  )}
-
-                  <button
-                    className="btn btn-primary"
-                    onClick={() => onAdd(destination.id)}
-                  >
-                    Agregar
-                  </button>
-                </div>
-              </div>
-            </div>
-          );
-        })}
+      <div className="d-flex align-items-center gap-3 mb-4">
+        <div className="flex-grow-1">
+          <h2 className="mb-0 fw-bold" style={{ 
+            background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+            WebkitBackgroundClip: 'text',
+            WebkitTextFillColor: 'transparent',
+            backgroundClip: 'text'
+          }}>
+            ✈️ Destinos Disponibles
+          </h2>
+          <p className="text-muted small mb-0 mt-1">
+            Seleccioná tus destinos favoritos y agregalos al carrito
+          </p>
+        </div>
+      </div>
+      <div className="row g-4">
+        {destinations.map(destination => (
+          <ProductCard
+            key={destination.id}
+            product={destination}
+            onAddToCart={agregarAlCarrito}
+            count={itemCounts[destination.id] || 0}
+          />
+        ))}
       </div>
     </div>
   );

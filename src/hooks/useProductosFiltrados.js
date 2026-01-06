@@ -5,7 +5,7 @@ import { useMemo, useState, useCallback } from 'react';
  * @param {array} productos - Lista completa de productos
  * @param {number} itemsPerPage - Número de items por página
  */
-export const useProductosFiltrados = (productos = [], itemsPerPage = 6) => {
+export const useProductosFiltrados = (productos = [], itemsPerPage = 8) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
 

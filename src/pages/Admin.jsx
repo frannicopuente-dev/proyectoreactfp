@@ -26,7 +26,7 @@ const Admin = () => {
     totalItems,
     handleSearch,
     handlePageChange,
-  } = useProductosFiltrados(productos, 9);
+  } = useProductosFiltrados(productos, 8);
 
   const limpiarMensajes = useCallback(() => {
     setMensajeExito('');

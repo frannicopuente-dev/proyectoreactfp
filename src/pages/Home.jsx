@@ -20,7 +20,7 @@ const Home = () => {
     totalItems,
     handleSearch,
     handlePageChange,
-  } = useProductosFiltrados(productos, 6);
+  } = useProductosFiltrados(productos, 8);
 
   if (loading && productos.length === 0) {
     return (
